@@ -7,7 +7,11 @@
 // next unlocks); upcoming = locked; previous = results.
 // ============================================================================
 
-export const US_TZ = 'America/New_York';
+// Central, not Eastern: the WC spans US time zones, and grouping by Eastern
+// pushed late-night games (e.g. a West-Coast or midnight-ET kickoff) into the
+// NEXT day's match day, where — being earliest — they locked it hours early.
+// Central keeps those late games in their own slate.
+export const US_TZ = 'America/Chicago';
 // The next 3 unplayed match days are playable; everything after them stays
 // locked and unlocks one-by-one as earlier match days finish.
 export const OPEN_COUNT = 3;
