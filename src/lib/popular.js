@@ -50,7 +50,7 @@ const STAR_KEYS = [
   // Brazil
   'cunha', 'paqueta', 'gabriel jesus',
   // Morocco
-  'bounou', 'el kaabi', 'brahim diaz', 'ezzalzouli', 'en nesyri', 'mazraoui',
+  'bounou', 'el kaabi', 'brahim diaz', 'ezzalzouli', 'en nesyri', 'mazraoui', 'saibari', 'ounahi',
   // Netherlands
   'ake', 'malen', 'weghorst', 'gravenberch', 'reijnders', 'timber', 'frimpong',
   // Japan

@@ -11,7 +11,7 @@
 // in Node and in the browser unchanged.
 // ============================================================================
 
-import { matchupContext, playerQuality, playerVariance } from './strength.js';
+import { matchupContext, playerQuality, playerVariance, isAttackingMid } from './strength.js';
 
 // Metrics we support. `key` must match the field we read back from the stats
 // feed when resolving (see functions/apiFootball.js -> normalisePlayerStats).
@@ -46,7 +46,7 @@ const POSITION_METRICS = {
 const POSITION_BASELINE = {
   G: { saves: 2.8, conceded: 1.15 },
   D: { tackles: 2.1, shots: 0.5, passes: 50, goals: 0.04 },
-  M: { shots: 1.2, shotsOn: 0.5, assists: 0.18, tackles: 1.7, passes: 55, goals: 0.07 },
+  M: { shots: 1.2, shotsOn: 0.5, assists: 0.18, tackles: 1.7, passes: 55, goals: 0.10 },
   F: { goals: 0.32, shotsOn: 1.2, shots: 2.6, assists: 0.18 },
 };
 
@@ -98,8 +98,12 @@ export function buildLine(player, metric, ctx) {
       // Bellingham…) — don't let a midfield position default suppress their goal
       // threat to a defensive level; lift toward a forward's base.
       const fBase = POSITION_BASELINE.F[metric];
-      if (pos === 'M' && (ctx.quality ?? 1) >= 1.3 && fBase != null) {
-        baseline = Math.max(baseline, fBase * 0.55);
+      if (pos === 'M' && fBase != null) {
+        // Attacking mids price close to a forward (they're real goal threats);
+        // other quality mids (often defensive — Rodri, Casemiro) get a milder
+        // lift; a plain squad midfielder gets none.
+        const lift = ctx.attMid ? 0.78 : ((ctx.quality ?? 1) >= 1.3 ? 0.55 : 0);
+        if (lift) baseline = Math.max(baseline, fBase * lift);
       }
       // Clamp the strength × quality effect, THEN apply the per-player variance —
       // so even at the clamp ceiling/floor (big mismatches) every player stays distinct.
@@ -147,7 +151,7 @@ export function buildMatchProps(match) {
   const props = [];
   const addSide = (players, sideCtx) => {
     for (const player of players || []) {
-      const ctx = { ...sideCtx, quality: playerQuality(player.name), variance: playerVariance(player.name) };
+      const ctx = { ...sideCtx, quality: playerQuality(player.name), variance: playerVariance(player.name), attMid: isAttackingMid(player.name) };
       for (const line of buildPlayerProps(player, ctx)) {
         props.push({
           id: `${match.id}:${player.id}:${line.metric}`,

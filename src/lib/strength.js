@@ -89,15 +89,33 @@ const ELITE_KEYS = [
   'julian alvarez', 'vitinha', 'olmo', 'leao', 'bruno fernandes', 'b fernandes',
 ];
 
+// Genuine ATTACKING midfielders / playmakers who score like attackers. The
+// position feed only gives us "M", so a creative #10 (Güler, Saïbari) gets a
+// midfield goals baseline and pays out like a defensive mid — far too generous.
+// These get a strong "lift toward a forward" in lineEngine, while defensive star
+// mids (Rodri, Casemiro, Rice…) keep the milder default lift.
+const ATT_MID_KEYS = [
+  'saibari', 'ounahi', 'arda guler', 'kokcu', 'brahim diaz', 'wirtz', 'musiala',
+  'foden', 'odegaard', 'olmo', 'dani olmo', 'xavi simons', 'simons', 'reijnders',
+  'maddison', 'bellingham', 'de bruyne', 'kevin de bruyne', 'bruno fernandes',
+  'gundogan', 'almada', 'arrascaeta', 'james rodriguez', 'lee kang in', 'paqueta',
+  'kubo', 'kamada', 'mac allister', 'sucic',
+];
+
+/** True if a player is a known attacking midfielder / goal-scoring playmaker. */
+export function isAttackingMid(name) {
+  return matchesAny(name, ATT_MID_KEYS);
+}
+
 /**
  * Attacking-output multiplier combining player quality AND how likely they are to
  * start/feature (no lineup data pre-match, so fame is the proxy):
- *   elite ≈ 1.55× (nailed-on starters), star ≈ 1.25× (well-known regulars),
+ *   elite ≈ 1.8× (nailed-on starters), star / attacking mid ≈ 1.4×,
  *   squad player ≈ 0.8× (less likely to start or be a goal threat).
  */
 export function playerQuality(name) {
   if (matchesAny(name, ELITE_KEYS)) return 1.8;
-  if (isStar(name)) return 1.4;
+  if (isStar(name) || isAttackingMid(name)) return 1.4;
   return 0.8;
 }
 
